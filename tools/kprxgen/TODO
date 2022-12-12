@@ -1,0 +1,5 @@
+TODO convert relocations type A to type B
+     type B relocations take less space and are for FW kernel modules only
+     relocations segment type LOPROC+a0 to LOPROC+a1
+TODO remove all sections headers + the section shstrtab in final prx
+     only the program headers (segments) must be kept
