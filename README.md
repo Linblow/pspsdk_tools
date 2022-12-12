@@ -22,7 +22,7 @@ Open a terminal in the project's root directory and type:
 ./b.sh help
 ```
 
-A CMake import script will be installed to `$PSPDEV/lib/cmake/pspsdk-tools-targets.cmake`.
+A CMake import script will be installed to `$PSPDEV/lib/cmake/pspsdk-tools-targets.cmake`.  
 Other projects can then import the tools targets:
 
 ```cmake
