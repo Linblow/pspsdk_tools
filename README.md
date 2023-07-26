@@ -8,7 +8,7 @@ A bunch of tools for developing on the Sony PSP:
 - `psp-kprxgen` (not done yet, equivalent to `prxgen`)
 - `psp-prxgen`
 - `pack-pbp` remade from scratch with new options (e.g. `--quiet / -q` option)
-- [`psp-sign-np`](toosl/sign_np-hykem/README.md) by Hykem
+- [`psp-sign-np`](tools/sign_np-hykem/README.md) by Hykem
 
 ## Build and install
 
