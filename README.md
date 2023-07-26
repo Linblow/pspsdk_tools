@@ -2,12 +2,13 @@
 
 A bunch of tools for developing on the Sony PSP:
 
-- `build-exports` with new options added
-- `fixup-imports`
-- `kprxgen` (not done yet, equivalent to `prxgen`)
-- `prxgen`
-- `pack-pbp` remade from scratch with new options (e.g. quiet option)
-- `sign-np` (Hykem's)
+- [`bin2s` / `bin2c`](tools/bin-utils/CHANGELOG.md) with new optional argument `<alignment>`
+- [`psp-build-exports`](tools/build-exports/CHANGELOG.md) with new options (i.e `--uofw` option)
+- `psp-fixup-imports`
+- `psp-kprxgen` (not done yet, equivalent to `prxgen`)
+- `psp-prxgen`
+- `pack-pbp` remade from scratch with new options (e.g. `--quiet / -q` option)
+- [`psp-sign-np`](toosl/sign_np-hykem/README.md) by Hykem
 
 ## Build and install
 
@@ -15,7 +16,7 @@ Open a terminal in the project's root directory and type:
 
 ```shell
 # Build the tools and install them to the local PSPDEV directory.
-# The existing tools, if any, will be overwritten.
+# The existing tools, if any, WILL be overwritten.
 ./b.sh all install
 
 # Show the other available commands.

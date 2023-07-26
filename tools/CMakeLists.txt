@@ -3,6 +3,7 @@ add_compile_options(-Wall -Wextra -Wno-stringop-truncation)
 
 add_compile_definitions("$<$<CONFIG:Debug>:DEBUG=1>")
 
+add_subdirectory(bin-utils)
 add_subdirectory(build-exports)
 add_subdirectory(fixup-imports)
 add_subdirectory(kprxgen)
