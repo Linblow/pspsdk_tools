@@ -172,20 +172,16 @@ static int write_pbp(const char *path,
       fclose(fp);
       fp = NULL;
    }
-
-   if (0 != fclose(fout))
-      ENDERRF(ERR_IO_CLOSE, "Cannot close the output file handle (%s)\n", path);
    
    if (g_verbose)
    {
       if (human_size)
          format_file_size(strsize, sizeof(strsize), pbpsize, use_si_units, size_precision);
       else
-         sprintf(strsize, "%d bytes", pbpsize);
+         sprintf(strsize, "%lu bytes", pbpsize);
       printf("Created %s of %s\n", basename(path), strsize);
    }
 
-   fout = NULL;
    ret = ERR_OK;
    
 end:
@@ -193,9 +189,12 @@ end:
       fclose(fp);
    if (buf != NULL)
       free(buf);
-   if (fout != NULL)
-      fclose(fout);
-   
+   if (fout != NULL && 0 != fclose(fout) && ret == 0)
+   {
+      printferr("Cannot close the output file handle (%s)\n", path);
+      ret = ERR_IO_CLOSE;
+   }
+
    return ret;
 }
 
@@ -244,15 +243,15 @@ typedef struct {
 
 static int is_skip_argval(const char *val)
 {
-   return stricmp(val, "NULL") == 0 || strcmp(val, "-") == 0;
+   return strcasecmp(val, "NULL") == 0 || strcmp(val, "-") == 0;
 }
 
 static int is_false_bool_argval(const char *val)
 {
-   return stricmp(val, "n") == 0      || 
-          stricmp(val, "no") == 0     || 
-          stricmp(val, "off") == 0    || 
-          stricmp(val, "false") == 0;
+   return strcasecmp(val, "n") == 0      || 
+          strcasecmp(val, "no") == 0     || 
+          strcasecmp(val, "off") == 0    || 
+          strcasecmp(val, "false") == 0;
 }
 
 static int parse_args(int argc, char *argv[], parsed_args_t *args)

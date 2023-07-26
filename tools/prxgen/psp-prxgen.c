@@ -137,7 +137,11 @@ unsigned char *load_file(const char *file)
 				break;
 			}
 
-			(void) fread(data, 1, size, fp);
+			if(fread(data, 1, size, fp) != size)
+			{
+				fprintf(stderr, "Error, could not read file data\n");
+				break;
+			}
 			fclose(fp);
 		}
 		else

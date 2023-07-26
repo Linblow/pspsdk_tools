@@ -556,7 +556,13 @@ int main(int argc, char *argv[])
 	
 		// Read ELF file.
 		u8 *elf_buf = (u8 *) malloc (elf_size);
-		fread(elf_buf, elf_size, 1, elf);
+		if ((int)fread(elf_buf, 1, elf_size, elf) != elf_size)
+		{
+			fprintf(stderr, "ERROR: Cannot read ELF file\n");
+			fclose(elf);
+			fclose(bin);
+			return 0;
+		}
 		
 		// Sign the ELF file.
 		u8 *seboot_buf = (u8 *) malloc (elf_size + 4096);
@@ -693,8 +699,14 @@ int main(int argc, char *argv[])
 				char ex_file1_magic[4] = {0x00, 0x00, 0x00, 0x00};
 				FILE* ex_file1 = fopen(ex_file_name1, "rb");
 			
-				if (ex_file1 != NULL)
-					fread(ex_file1_magic, 4, 1, ex_file1);
+				if (ex_file1 != NULL && fread(ex_file1_magic, 1, 4, ex_file1) != 4)
+				{
+					fprintf(stderr, "ERROR: Cannot read optional file 1\n");
+					fclose(ex_file1);
+					fclose(iso);
+					fclose(pbp);
+					return 0;
+				}
 			
 				fclose(ex_file1);
 			
@@ -725,8 +737,14 @@ int main(int argc, char *argv[])
 				char ex_file2_magic[4] = {0x00, 0x00, 0x00, 0x00};
 				FILE* ex_file2 = fopen(ex_file_name2, "rb");
 				
-				if (ex_file2 != NULL)
-					fread(ex_file2_magic, 4, 1, ex_file2);
+				if (ex_file2 != NULL && fread(ex_file2_magic, 1, 4, ex_file2) != 4)
+				{
+					fprintf(stderr, "ERROR: Cannot read optional file 2\n");
+					fclose(ex_file2);
+					fclose(iso);
+					fclose(pbp);
+					return 0;
+				}
 				
 				fclose(ex_file2);
 				
@@ -781,7 +799,14 @@ int main(int argc, char *argv[])
 		
 			// Read OPNSSMP file.
 			u8 *opnssmp_buf = (u8 *) malloc (opnssmp_size);
-			fread(opnssmp_buf, opnssmp_size, 1, opnssmp);
+			if ((int)fread(opnssmp_buf, 1, opnssmp_size, opnssmp) != opnssmp_size)
+			{
+				fprintf(stderr, "ERROR: Cannot read OPNSSMP file\n");
+				fclose(opnssmp);
+				fclose(iso);
+				fclose(pbp);
+				return 0;
+			}
 		
 			// Encrypt OPNSSMP file with version_key.
 			pgd_size = encrypt_pgd(opnssmp_buf, opnssmp_size, pgd_block_size, 1, 1, 2, version_key, pgd_buf);
@@ -845,7 +870,13 @@ int main(int argc, char *argv[])
 			memcpy(startdat_buf, sd_header, 0x50);
 			
 			// Read the PNG file.
-			fread(startdat_buf + 0x50, png_size, 1, png);
+			if ((int)fread(startdat_buf + 0x50, 1, png_size, png) != png_size)
+			{
+				fprintf(stderr, "Warning: Error reading the PNG (STARTDAT) file, ignoring it\n");
+				free(startdat_buf);
+				startdat_buf = NULL;
+				startdat_size = 0;
+			}
 			
 			// Clean up.
 			fclose(png);
@@ -884,12 +915,14 @@ int main(int argc, char *argv[])
 			if ((ftello64(iso) + block_size) > iso_size)
 			{
 				long long remaining = iso_size - ftello64(iso);
-				fread(iso_buf, remaining, 1, iso);
+				if (fread(iso_buf, remaining, 1, iso) != 1)
+					fprintf(stderr, "Warning: Error reading ISO block\n");
 				wsize = remaining;
 			}
 			else
 			{
-				fread(iso_buf, block_size, 1, iso);
+				if (fread(iso_buf, block_size, 1, iso) != 1)
+					fprintf(stderr, "Warning: Error reading ISO block\n");
 				wsize = block_size;
 			}
 			

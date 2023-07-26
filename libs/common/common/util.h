@@ -4,6 +4,12 @@
 
 #include <common/types.h>
 
+/* Fuckin' Windows */
+#ifdef _MSC_VER
+# define strncasecmp _strnicmp
+# define strcasecmp _stricmp
+#endif
+
 char * basename(const char *filename);
 
 int build_file_path(char *out, size_t outsz, size_t *pLen, const char *a, const char *b, ...);

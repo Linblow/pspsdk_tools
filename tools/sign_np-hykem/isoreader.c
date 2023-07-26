@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
  
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -416,7 +416,7 @@ int isoOpen(const char *path)
 			g_ciso_dec_buf = malloc(CISO_DEC_BUFFER_SIZE);
 
 			if (g_ciso_dec_buf == NULL) {
-				printf("malloc -> 0x%08x\n", (u32)g_ciso_dec_buf);
+				printf("malloc -> 0x%08lx\n", (uintptr_t)g_ciso_dec_buf);
 				ret = -6;
 				goto error;
 			}

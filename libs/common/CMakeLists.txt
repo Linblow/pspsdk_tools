@@ -24,3 +24,5 @@ target_include_directories(${PSPSDK_TOOL_PREFIX_LIB}common PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/glibc/posix
 )
+
+target_link_libraries(${PSPSDK_TOOL_PREFIX_LIB}common PUBLIC m)
