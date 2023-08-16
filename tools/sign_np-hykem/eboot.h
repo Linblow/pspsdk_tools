@@ -17,4 +17,4 @@ typedef struct {
 	u32 type;
 } TAG_KEY;
 
-int sign_eboot(u8 *eboot, int eboot_size, int tag, u8 *seboot);
+int sign_eboot(u8 *eboot, int eboot_size, int tag, u8 *seboot, u32 devkit_ver);

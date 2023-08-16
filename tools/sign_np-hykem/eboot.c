@@ -87,7 +87,7 @@ void fix_reloc7(u8 *ebuf)
 	}
 }
 
-void build_psp_header(PSP_Header2 *psph, u8 *ebuf, int esize)
+void build_psp_header(PSP_Header2 *psph, u8 *ebuf, int esize, u32 devkit_ver)
 {
 	Elf32_Ehdr *elf;
 	Elf32_Shdr *sh;
@@ -113,10 +113,8 @@ void build_psp_header(PSP_Header2 *psph, u8 *ebuf, int esize)
 	psph->signature = 0x5053507E;
 	psph->mod_attribute = 0;
 	psph->comp_attribute = 0;
-	psph->module_ver_lo = 1;
-	psph->module_ver_hi = 1;
 	psph->mod_version = 1;
-	psph->devkit_version = 0x06020010;
+	psph->devkit_version = devkit_ver; // was previously set to 0x06020010
 	psph->decrypt_mode = 9;
 	psph->overlap_size = 0;
 
@@ -137,6 +135,10 @@ void build_psp_header(PSP_Header2 *psph, u8 *ebuf, int esize)
 		psph->modinfo_offset = ph[0].p_paddr;
 		modinfo = (SceModuleInfo*)(ebuf+ph[0].p_paddr);
 	}
+
+	/* Set module version accordingly. */
+	psph->module_ver_lo = modinfo->modversion[0];
+	psph->module_ver_hi = modinfo->modversion[1];
 
 	strcpy(psph->modname, modinfo->modname);
 
@@ -282,7 +284,7 @@ void build_psp_SHA1(u8 *ebuf, u8 *pbuf)
 /*
 	PSP EBOOT signing function.
 */
-int sign_eboot(u8 *eboot, int eboot_size, int tag, u8 *seboot)
+int sign_eboot(u8 *eboot, int eboot_size, int tag, u8 *seboot, u32 devkit_ver)
 {
 	PSP_Header2 psp_header;
 	
@@ -305,7 +307,7 @@ int sign_eboot(u8 *eboot, int eboot_size, int tag, u8 *seboot)
 	// printf("Resigning EBOOT file with tag %08X\n", tkey->tag);
 
 	// Build ~PSP header.
-	build_psp_header(&psp_header, ebuf + 0x150, esize);
+	build_psp_header(&psp_header, ebuf + 0x150, esize, devkit_ver);
 	
 	// Encrypt and sign data with KIRK1.
 	build_psp_kirk1(ebuf + 0x40, (u8*)&psp_header, esize);

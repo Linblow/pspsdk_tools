@@ -3,6 +3,14 @@
 
 #include "sign_np.h"
 
+#define DEFAULT_DEVKIT_VER (620)
+
+#define TO_DEVKIT_VER(ver)              \
+    ( (((ver) / 100) << 24)         +   \
+      ((((ver) % 100) / 10) << 16)  +   \
+      ((((ver) % 100) % 10) << 8)   +   \
+      0x10 )
+
 u8 *load_file_from_ISO(const char *iso, char *name, int *size)
 {
 	int ret;
@@ -462,7 +470,7 @@ void print_usage()
 	printf("psp-sign-np v1.0.4 by Hykem\n"
 	       "Convert PSP ISOs to signed PSN PBPs.\n\n"
 	       "Usage: psp-sign-np -pbp [-c] <input> <output> <cid> <key> [<startdat> [<opnssmp>]]\n"
-	       "       psp-sign-np -elf <input> <output> <tag>\n"
+	       "       psp-sign-np -elf <input> <output> <tag> [<devkit_ver>]\n"
 	       "\n"
 	       "- Modes:\n"
 	       "[-pbp]: Encrypt and sign a PSP ISO into a PSN EBOOT.PBP\n"
@@ -493,7 +501,11 @@ void print_usage()
            "       10 - 0xD91613F0  24 - 0xD91628F0\n"
            "       11 - 0xD91614F0  25 - 0xD91680F0\n"
            "       12 - 0xD91615F0  26 - 0xD91681F0\n"
-           "       13 - 0xD91616F0  27 - 0xD91690F0\n");
+           "       13 - 0xD91616F0  27 - 0xD91690F0\n"
+		   "<devkit_ver>: Devkit version for ~PSP header\n"
+		   "              661 - 0x06060110\n"
+		   "              620 - 0x06020010\n"
+		   "              XYZ - 0xXXYYZZ10\n");
 }
 
 int main(int argc, char *argv[])
@@ -516,10 +528,18 @@ int main(int argc, char *argv[])
 		// Open files.
 		char *elf_name = argv[arg_offset + 1];
 		char *bin_name = argv[arg_offset + 2];
-		int tag = atoi(argv[arg_offset + 3]);
+		int tag = strtol(argv[arg_offset + 3], NULL, 10);
+		u32 devkit_ver = DEFAULT_DEVKIT_VER;
 		FILE* elf = fopen(elf_name, "rb");
 		FILE* bin = fopen(bin_name, "wb");
 		
+		/* Set devkit version. */
+		if (argc > arg_offset + 4)
+			devkit_ver = strtoul(argv[arg_offset + 4], NULL, 10);
+		/* Transform eg. 661 into 0x06060110. */
+		if (devkit_ver != 0) // 0 is allowed
+			devkit_ver = TO_DEVKIT_VER(devkit_ver);
+
 		// Check input file.
 		if (elf == NULL)
 		{
@@ -567,7 +587,7 @@ int main(int argc, char *argv[])
 		// Sign the ELF file.
 		u8 *seboot_buf = (u8 *) malloc (elf_size + 4096);
 		memset(seboot_buf, 0, elf_size + 4096);
-		int seboot_size = sign_eboot(elf_buf, elf_size, tag, seboot_buf);
+		int seboot_size = sign_eboot(elf_buf, elf_size, tag, seboot_buf, devkit_ver);
 		
 		// Exit in case of error.
 		if (seboot_size < 0)
